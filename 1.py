@@ -18,6 +18,16 @@ def get_public_ip():
     result = subprocess.run("curl -s ifconfig.me", shell=True, capture_output=True, text=True)
     return result.stdout.strip()
 
+# 获取公网IP的国家信息
+def get_ip_country(ip):
+    url = f"https://ipinfo.io/{ip}/json"
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json().get("country", "未知")
+    else:
+        print(f"无法获取IP国家信息，状态码: {response.status_code}")
+        return "未知"
+
 # 请求最新区块信息
 def get_latest_block_height():
     url = "https://api.artela.dadunode.com/cosmos/base/tendermint/v1beta1/blocks/latest"
@@ -63,6 +73,7 @@ if __name__ == "__main__":
         # 获取当前时间和公网IP
         current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         public_ip = get_public_ip()
+        country = get_ip_country(public_ip)  # 获取国家信息
 
         # 获取最新区块高度
         latest_block_height = sync_info_json['latest_block_height']
@@ -74,21 +85,4 @@ if __name__ == "__main__":
 
             # 构建消息内容
             message_content = (
-                f"夫拉斯基监控报警：\n"
-                f"时间：{current_time}\n"
-                f"IP：{public_ip}\n"
-                f"latest_block_height：{latest_block_height}\n"
-                f"height：{latest_block_height_api}\n"
-                f"差值：{height_difference}\n"
-            )
-
-            # 添加警告信息
-            if height_difference > 200:
-                message_content += "注意注意：服务器跟不上块了！！！\n"
-
-            # 发送消息
-            status_code, response_text = send_dingtalk_message(message_content)
-            print(f"发送状态: {status_code}, 响应: {response_text}")
-
-        # 每分钟查询一次
-        time.sleep(7200)
+                f"夫拉斯基监控报警
