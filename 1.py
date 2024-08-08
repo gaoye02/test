@@ -85,4 +85,22 @@ if __name__ == "__main__":
 
             # 构建消息内容
             message_content = (
-                f"夫拉斯基监控报警
+                f"夫拉斯基监控报警：\n"
+                f"时间：{current_time}\n"
+                f"IP：{public_ip}\n"
+                f"国家：{country}\n"
+                f"latest_block_height：{latest_block_height}\n"
+                f"height：{latest_block_height_api}\n"
+                f"差值：{height_difference}\n"
+            )
+
+            # 添加警告信息
+            if height_difference > 200:
+                message_content += "注意注意：服务器跟不上块了！！！\n"
+
+            # 发送消息
+            status_code, response_text = send_dingtalk_message(message_content)
+            print(f"发送状态: {status_code}, 响应: {response_text}")
+
+        # 每两小时查询一次
+        time.sleep(7200)
